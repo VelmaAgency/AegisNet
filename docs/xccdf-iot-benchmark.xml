@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Benchmark xmlns="http://checklists.nist.gov/xccdf/1.2" id="xccdf_org.example_benchmark_iot">
+  <status date="2025-10-24">accepted</status>
+  <title>AegisNet IoT Security Benchmark</title>
+  <description>IoT compliance rules for AegisNet v1.0</description>
+  <Profile id="xccdf_org.example_profile_mobile">
+    <title>Mobile IoT Profile</title>
+    <select idref="xccdf_org.example_rule_mdm" selected="true"/>
+    <select idref="xccdf_org.example_rule_secure_boot" selected="true"/>
+    <select idref="xccdf_org.example_rule_tpm" selected="true"/>
+    <select idref="xccdf_org.example_rule_argon2" selected="true"/>
+  </Profile>
+  <Rule id="xccdf_org.example_rule_mdm" severity="high">
+    <title>Ensure MDM Profile Installed</title>
+    <check system="http://oval.mitre.org/XMLSchema/oval-definitions-5">
+      <check-content-ref href="linux-iot-oval.xml" name="oval:tutorial:def:1"/>
+    </check>
+  </Rule>
+  <Rule id="xccdf_org.example_rule_secure_boot" severity="high">
+    <title>Ensure Secure Boot Enabled</title>
+    <check system="http://oval.mitre.org/XMLSchema/oval-definitions-5">
+      <check-content-ref href="linux-iot-oval.xml" name="oval:tutorial:def:2"/>
+    </check>
+  </Rule>
+  <Rule id="xccdf_org.example_rule_tpm" severity="high">
+    <title>Ensure TPM Enabled</title>
+    <check system="http://oval.mitre.org/XMLSchema/oval-definitions-5">
+      <check-content-ref href="linux-iot-oval.xml" name="oval:tutorial:def:3"/>
+    </check>
+  </Rule>
+  <Rule id="xccdf_org.example_rule_argon2" severity="high">
+    <title>Ensure Argon2id Parameters</title>
+    <check system="http://oval.mitre.org/XMLSchema/oval-definitions-5">
+      <check-content-ref href="linux-iot-oval.xml" name="oval:tutorial:def:4"/>
+    </check>
+  </Rule>
+</Benchmark>
