@@ -12,6 +12,10 @@ A bio-inspired, zero-trust IIoT cybersecurity framework with AI emergence, compl
 2. Install: `pip install -r requirements.txt`
 3. Run: `python src/main.py`
 
+## Recent Commits
+- [70b081a](https://github.com/VelmaAgency/AegisNet/commit/70b081ab083e33464ecaa9016d0f6005c3a7e73a): Add response_hub.py for SNMP RCE triage.
+- Add agentic_swarms.py for AI-driven swarm coordination.
+
 ## Usage
 Configure `configs/config.yaml` and deploy via Kubernetes (`k8s/`).
 
