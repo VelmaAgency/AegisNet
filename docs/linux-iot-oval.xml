@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<oval_definitions xmlns="http://oval.mitre.org/XMLSchema/oval-definitions-5"
+                  xmlns:oval="http://oval.mitre.org/XMLSchema/oval-common-5">
+  <generator>
+    <oval:product_name>AegisNet OVAL Scanner</oval:product_name>
+    <oval:timestamp>2025-10-24T10:28:00Z</oval:timestamp>
+  </generator>
+  <definitions>
+    <definition id="oval:tutorial:def:1" version="1" class="compliance">
+      <metadata>
+        <title>Check MDM Profile</title>
+        <description>Checks if MDM profile is installed</description>
+      </metadata>
+      <criteria>
+        <criterion test_ref="oval:tutorial:tst:1" comment="MDM profile installed"/>
+      </criteria>
+    </definition>
+    <definition id="oval:tutorial:def:2" version="1" class="compliance">
+      <metadata>
+        <title>Check Secure Boot</title>
+        <description>Checks if secure boot is disabled</description>
+      </metadata>
+      <criteria>
+        <criterion test_ref="oval:tutorial:tst:2" comment="Secure boot enabled"/>
+      </criteria>
+    </definition>
+    <definition id="oval:tutorial:def:3" version="1" class="compliance">
+      <metadata>
+        <title>Check TPM Enabled</title>
+        <description>Checks if TPM is enabled</description>
+      </metadata>
+      <criteria>
+        <criterion test_ref="oval:tutorial:tst:3" comment="TPM enabled"/>
+      </criteria>
+    </definition>
+    <definition id="oval:tutorial:def:4" version="1" class="compliance">
+      <metadata>
+        <title>Check Argon2 Parameters</title>
+        <description>Checks Argon2id parameters</description>
+      </metadata>
+      <criteria>
+        <criterion test_ref="oval:tutorial:tst:4" comment="Argon2id params meet minimum"/>
+      </criteria>
+    </definition>
+  </definitions>
+  <tests>
+    <test id="oval:tutorial:tst:1" version="1" check="all">
+      <object object_ref="oval:tutorial:obj:1"/>
+    </test>
+    <test id="oval:tutorial:tst:2" version="1" check="all">
+      <object object_ref="oval:tutorial:obj:2"/>
+    </test>
+    <test id="oval:tutorial:tst:3" version="1" check="all">
+      <object object_ref="oval:tutorial:obj:3"/>
+    </test>
+    <test id="oval:tutorial:tst:4" version="1" check="all">
+      <object object_ref="oval:tutorial:obj:4"/>
+    </test>
+  </tests>
+  <objects>
+    <object id="oval:tutorial:obj:1" version="1">
+      <filepath>/etc/mdm/profile</filepath>
+    </object>
+    <object id="oval:tutorial:obj:2" version="1">
+      <filepath>/sys/firmware/efi/efivars/SecureBoot</filepath>
+    </object>
+    <object id="oval:tutorial:obj:3" version="1">
+      <filepath>/dev/tpm0</filepath>
+    </object>
+    <object id="oval:tutorial:obj:4" version="1">
+      <filepath>/etc/luks/argon2.conf</filepath>
+    </object>
+  </objects>
+</oval_definitions>
