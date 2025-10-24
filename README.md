@@ -1,4 +1,4 @@
-# AegisNet-v1.0
+# AegisNet
 A bio-inspired, zero-trust IIoT cybersecurity framework with AI emergence, compliance, and scalability.
 
 ## Features
@@ -8,7 +8,7 @@ A bio-inspired, zero-trust IIoT cybersecurity framework with AI emergence, compl
 - **Scalability**: 1M nodes, 1.5% CPU with HPA+Cluster Autoscaler.
 
 ## Installation
-1. Clone: `git clone [https://github.com/velmaagency/AegisNet-v1.0.git]`
+1. Clone: `git clone [https://github.com/velmaagency/AegisNet.git]`
 2. Install: `pip install -r requirements.txt`
 3. Run: `python src/main.py`
 
