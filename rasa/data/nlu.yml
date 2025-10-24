@@ -1,0 +1,4 @@
+nlu:
+- intent: explain_anomaly
+  examples:
+  - explain why this anomaly was flagged

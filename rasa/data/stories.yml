@@ -1,0 +1,7 @@
+stories:
+- story: explain_anomaly
+  steps:
+  - intent: explain_anomaly
+    entities:
+    - anomaly_id: "12345"
+  - action: action_explain_anomaly

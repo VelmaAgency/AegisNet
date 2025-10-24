@@ -1,0 +1,12 @@
+language: en
+pipeline:
+  - name: WhitespaceTokenizer
+  - name: SemanticKernelClassifier
+    model: "semantic_kernel_nlp"
+    endpoint: "http://localhost:8001"
+  - name: DIETClassifier
+    epochs: 100
+policies:
+  - name: MemoizationPolicy
+  - name: TEDPolicy
+    epochs: 100
