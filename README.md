@@ -26,7 +26,10 @@ A bio-inspired, zero-trust IIoT cybersecurity framework with AI emergence, compl
 - [2d97a0b](https://github.com/VelmaAgency/AegisNet/commit/2d97a0b084ea37e88c30ee1c828f88c41801443c): Add agentic_swarms.py.
 - [6a9a020](https://github.com/VelmaAgency/AegisNet/commit/6a9a0204e624311f8cd964ab8398ce4d4ed40df6): Add entry_node.py.
 - [5a0324f](https://github.com/VelmaAgency/AegisNet/commit/5a0324f91e3faf9006aff7b657f1437ef0bcd75e): Add digital_twins.py.
-
+- [2628c4b](https://github.com/VelmaAgency/AegisNet/commit/2628c4b10a6cbdec07b814392a533b4593b89525): Reverted v1.0 changes.
+- [6a9a020](https://github.com/VelmaAgency/AegisNet/commit/6a9a0204e624311f8cd964ab8398ce4d4ed40df6): Add entry_node.py.
+- [5a0324f](https://github.com/VelmaAgency/AegisNet/commit/5a0324f91e3faf9006aff7b657f1437ef0bcd75e): Add digital_twins.py.
+- [ec69a38](https://github.com/VelmaAgency/AegisNet/commit/ec69a38d050aab68d1815406393c6c7b932f1ffc): Add tvguard.py.
 ## Usage
 Configure `configs/config.yaml` and deploy via Kubernetes (`k8s/`).
 
