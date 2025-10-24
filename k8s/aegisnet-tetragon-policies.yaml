@@ -1,0 +1,21 @@
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: aegisnet-unified-lsm
+spec:
+  podSelector:
+    matchLabels:
+      app: "aegisnet-iot"
+  lsmhooks:
+    - hook: "socket_ops"
+      args:
+        - index: 0
+          type: "sock"
+      selectors:
+        - matchArgs:
+            - index: 0
+              operator: "InOps"
+              values: ["connect", "sendmsg"]
+          matchActions:
+            - action: Override
+              argError: -1

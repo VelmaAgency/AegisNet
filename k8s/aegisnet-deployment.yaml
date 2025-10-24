@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aegisnet-smb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: aegisnet-smb
+  template:
+    metadata:
+      labels:
+        app: aegisnet-smb
+    spec:
+      containers:
+      - name: aegisnet
+        image: aegisnet:v1.0.24
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: aegisnet-smb
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: aegisnet-smb
+  minReplicas: 1
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
