@@ -1,0 +1,54 @@
+input_dim: 128
+dvb_threshold: 0.4
+wireguard_psk: "pre-shared-key-123"
+recovery_rate: 0.1
+latency_target: 0.0195
+cpu_target: 1.5
+memory_target: 5
+threat_threshold: 0.94
+stego_threshold: 7.5
+ssr_embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+iopc_threshold: 0.94
+bias_threshold: 0.75
+pate_epsilon: 0.3
+entropy_coef: 0.08
+nova_rules_path: "nova_rules/"
+suremdm_api_endpoint: "https://api.suremdm.42gears.com"
+suremdm_api_key: "mock_key"
+mdm_api_endpoint: "https://api.mdm.example.com"
+mdm_api_key: "mock_key"
+tpm_device: "/dev/tpm0"
+argon2_edge_params:
+  time_cost: 1
+  memory_cost: 4096
+  parallelism: 1
+  tag_length: 32
+argon2_cloud_params:
+  time_cost: 2
+  memory_cost: 65536
+  parallelism: 4
+  tag_length: 32
+salt_length: 16
+scrypt_min_N: 16384
+luks_kdf: "argon2id"
+luks_kdf_fallback: "scrypt"
+pcr0_expected: "mock_pcr0_hash"
+pcr1_expected: "mock_pcr1_hash"
+# ... add PCR2-23_expected similarly
+cis_compliance: true
+cis_rules: ["1.1.1", "1.2.3", "2.1.1", "3.1.2", "4.1.1", "5.1.1", "6.1.2", "7.1.1"]
+scap_enabled: true
+oval_path: "scap_content/linux-iot-oval.xml"
+xccdf_path: "scap_content/xccdf-iot-benchmark.xml"
+xccdf_schema_path: "xccdf-1.2.xsd"
+xccdf_profile: "xccdf_org.example_profile_mobile"
+mobile_compliance: true
+mdm_enabled: true
+cloud_mdm_enabled: true
+nova_auth:
+  username: "mock_user"
+  password: "mock_pass"
+  project_name: "mock_project"
+  auth_url: "https://mock-openstack-api"
+  user_domain_name: "default"
+  project_domain_name: "default"
