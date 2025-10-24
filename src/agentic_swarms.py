@@ -1,28 +1,20 @@
 import logging
 import asyncio
-from typing import List
-from ant_colony import ACO  # Placeholder
+import uuid
 
 logger = logging.getLogger(__name__)
 
 class Agent:
-    def __init__(self, agent_id: str):
-        self.id = agent_id
+    def __init__(self, role):
+        self.role = role
+        self.id = str(uuid.uuid4())
 
 class AgenticSwarms:
-    def __init__(self, config: Dict):
-        self.config = config
-        self.aco = ACO(nodes=1000, pheromone_init=1.0)
-        logger.info("AgenticSwarms initialized with ACO.")
+    def __init__(self):
+        self.agents = []
 
-    async def spawn_hunters(self, count: int) -> List[Agent]:
-        try:
-            max_agents = min(count, 50)
-            agents = []
-            for i in range(max_agents):
-                agents.append(Agent(f"hunter_{i}"))
-                logger.info("Spawned agent", extra={"agent_id": agents[-1].id})
-            return agents
-        except Exception as e:
-            logger.error("Agent spawning error", extra={"error": str(e)})
-            return []
+    async def spawn_hunters(self, count):
+        max_agents = min(count, 50)
+        for i in range(max_agents):
+            self.agents.append(Agent(f"hunter_{i}"))
+            logger.info("Spawned agent", extra={"agent_id": self.agents[-1].id})
