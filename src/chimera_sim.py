@@ -428,3 +428,78 @@ if __name__ == "__main__":
         print(f"Simulation metrics: {metrics}")
 
     asyncio.run(main())
+    # chimera_sim.py - T56 Threat Simulator with Batch Processing for AegisNet v2.1.1
+import torch
+import numpy as np
+from typing import Dict, List
+import logging
+from torch.utils.data import DataLoader, TensorDataset
+from nova_engine import VAE_GAN  # Import for T56 integration
+import asyncio
+import torch.nn as nn
+import torch.optim as optim
+import kfac  # Add kfac-pytorch to requirements.txt for ACKTR
+
+logger = logging.getLogger(__name__)
+
+class DiffusionModel:
+    """Denoising Diffusion Probabilistic Model (DDPM) for anomaly generation."""
+    def __init__(self, beta_start: float = 1e-4, beta_end: float = 0.02, timesteps: int = 1000):
+        self.timesteps = timesteps
+        self.betas = np.linspace(beta_start, beta_end, timesteps)
+        self.alphas = 1.0 - self.betas
+        self.alpha_bars = np.cumprod(self.alphas, axis=0)
+        self.u_net = nn.Sequential(
+            nn.Linear(128, 128),
+            nn.ReLU(),
+            nn.Linear(128, 128)
+        )  # U-Net placeholder
+
+    def add_noise(self, x: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
+        """Forward diffusion: Add noise to batched data at timestep t."""
+        try:
+            sqrt_alpha_bar = torch.sqrt(torch.tensor(self.alpha_bars[t.int()], device=x.device)).view(-1, 1)
+            noise = torch.randn_like(x)
+            return sqrt_alpha_bar * x + torch.sqrt(1 - torch.tensor(self.alpha_bars[t.int()], device=x.device)).view(-1, 1) * noise
+        except Exception as e:
+            logger.error(f"Diffusion noise error: {e}")
+            return x
+
+    def reverse_diffusion(self, x_noisy: torch.Tensor, t: torch.Tensor) -> torch.Tensor:
+        """Reverse diffusion: Denoise batched data with U-Net."""
+        try:
+            denoised = self.u_net(x_noisy)
+            return denoised
+        except Exception as e:
+            logger.error(f"Diffusion reverse error: {e}")
+            return x_noisy
+
+    def train_with_acktr(self, noisy_data: torch.Tensor, clean_data: torch.Tensor, epochs: int = 10, batch_size: int = 64):
+        """Train U-Net with ACKTR/K-FAC for diffusion."""
+        try:
+            optimizer = kfac.KFAC(self.u_net.parameters(), eps=1e-5, pi=0.001, update_freq=10)
+            criterion = nn.MSELoss()
+            dataset = TensorDataset(noisy_data, clean_data)
+            dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+            for epoch in range(epochs):
+                for batch_noisy, batch_clean in dataloader:
+                    optimizer.zero_grad()
+                    outputs = self.u_net(batch_noisy)
+                    loss = criterion(outputs, batch_clean)
+                    loss.backward()
+                    optimizer.step()
+            logger.info("ACKTR training completed for diffusion", extra={"epochs": epochs})
+        except Exception as e:
+            logger.error(f"ACKTR diffusion training error: {e}")
+
+# ... (existing ChimeraSim class)
+
+# Example usage
+if __name__ == "__main__":
+    import asyncio
+    async def main():
+        sim = ChimeraSim(nodes=1000)
+        metrics = await sim.simulate_threats(num_threats=1000)
+        print(f"Simulation metrics: {metrics}")
+
+    asyncio.run(main())
