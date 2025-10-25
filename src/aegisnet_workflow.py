@@ -42,3 +42,15 @@ class AegisNetWorkflow:
 if __name__ == "__main__":
     workflow = AegisNetWorkflow()
     workflow.run_workflow()
+async def add_task(self, task):
+    self.tasks.append(task)
+    try:
+        await task
+    except Exception as e:
+        logger.error(f"Task error: {e}")
+
+async def compress_logs(self):
+    logs = "Workflow logs"
+    compressed = gzip.compress(logs.encode())
+    logger.info("Logs compressed", extra={"size": len(compressed)})
+    return compressed
