@@ -15,3 +15,5 @@ elasticsearch>=8.11.3
 novaclient>=17.0.0
 flask>=2.2.0, 
 prometheus_client>=0.17.0
+requests>=2.28.0
+structlog>=22.1.0
