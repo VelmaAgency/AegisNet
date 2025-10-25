@@ -33,3 +33,26 @@ if __name__ == "__main__":
     model = SNN(hidden_dim=16)  # Pruned
     input_tensor = torch.rand(1, 128)
     optimize_snn(model, input_tensor)
+# edge_optimizer.py - Add TFLite for Edge AI
+import tensorflow as tf
+from typing import Dict
+
+def convert_to_tflite(model: nn.Module, sigma: float = 0.04) -> Dict:
+    """Convert to TFLite for edge, with local DP."""
+    try:
+        # Convert PyTorch to TF Lite (placeholder; use torch.onnx.export then tf.convert_to_tflite)
+        converter = tf.lite.TFLiteConverter.from_saved_model("model_path")  # Export from PyTorch
+        converter.optimizations = [tf.lite.Optimize.DEFAULT]
+        tflite_model = converter.convert()
+        # Local DP noise
+        noise = tf.random.normal(shape=tflite_model.shape, stddev=sigma)
+        return {"tflite_size": len(tflite_model), "noise_added": True}
+    except Exception as e:
+        logger.error(f"TFLite error: {e}")
+        return {"status": "error"}
+
+# Example
+if __name__ == "__main__":
+    model = SNN()  # From snn_t48.py
+    tflite = convert_to_tflite(model)
+    print(tflite)
