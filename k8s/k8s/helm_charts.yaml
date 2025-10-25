@@ -1,0 +1,92 @@
+# k8s/helm_charts.yaml - Helm Chart for AegisNet v2.1.1 Deployment
+apiVersion: v2
+name: aegisnet
+description: Helm chart for AegisNet v2.1.1 IIoT cybersecurity framework
+version: 1.0.0
+
+dependencies:
+  - name: prometheus
+    version: 15.0.0
+    repository: https://prometheus-community.github.io/helm-charts
+
+templates:
+  deployment.yaml:
+    apiVersion: apps/v1
+    kind: Deployment
+    metadata:
+      name: aegisnet
+      labels:
+        app: aegisnet
+    spec:
+      replicas: 2
+      selector:
+        matchLabels:
+          app: aegisnet
+      template:
+        metadata:
+          labels:
+            app: aegisnet
+        spec:
+          containers:
+            - name: aegisnet
+              image: velmaagency/aegisnet:2.1.1
+              ports:
+                - containerPort: 5000  # Flask frontend
+                - containerPort: 8000  # Prometheus
+              env:
+                - name: SMTP_HOST
+                  valueFrom:
+                    configMapKeyRef:
+                      name: aegisnet-config
+                      key: smtp_host
+                - name: SLACK_API_URL
+                  valueFrom:
+                    secretKeyRef:
+                      name: aegisnet-secrets
+                      key: slack_api_url
+              resources:
+                limits:
+                  cpu: "1"
+                  memory: "100Mi"
+                requests:
+                  cpu: "0.5"
+                  memory: "90Mi"
+  hpa.yaml:
+    apiVersion: autoscaling/v2
+    kind: HorizontalPodAutoscaler
+    metadata:
+      name: aegisnet-hpa
+    spec:
+      scaleTargetRef:
+        apiVersion: apps/v1
+        kind: Deployment
+        name: aegisnet
+      minReplicas: 2
+      maxReplicas: 10
+      metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            target:
+              type: Utilization
+              averageUtilization: 80
+  configmap.yaml:
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: aegisnet-config
+    data:
+      smtp_host: "smtp.example.com:587"
+      alertmanager_url: "http://localhost:9093/api/v2/alerts"
+      kibana_url: "http://localhost:5601"
+      elk_index: "aegisnet-transfer-2025.10.24"
+  secret.yaml:
+    apiVersion: v1
+    kind: Secret
+    metadata:
+      name: aegisnet-secrets
+    type: Opaque
+    data:
+      slack_api_url: c2xhY2tfYXBpX3VybA==  # Base64: Replace with your Slack webhook
+      smtp_from: YWx1ZXJ0c0B2ZWxtYWFjZW5jeS5jb20=  # Base64: alerts@velmaagency.com
+      alert_email: dGVhbUB2ZWxtYWFjZW5jeS5jb20=  # Base64: team@velmaagency.com
