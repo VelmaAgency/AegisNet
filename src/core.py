@@ -937,4 +937,26 @@ if __name__ == "__main__":
     triad = BioTriad()
     data = torch.rand(128)
     print(triad.planarian_healing(data, 0.95))
-    print(triad.neoblast_hardening(data).mean().item())
+    print(triad.neoblast_hardening(data).mean().# core.py - Add Axolotl Dedifferentiation
+import torch
+from typing import List
+
+class BioTriad:
+    # ... (existing logic)
+
+    def axolotl_dedifferentiation(self, damaged_nodes: List[int], pi3k_factor: float = 0.85, retinoic_acid: float = 1.2) -> List[int]:
+        """Axolotl-inspired dedifferentiation for advanced regeneration."""
+        try:
+           regenerated = []
+           for node in damaged_nodes:
+               # Simulate PI3K/retinoic acid pathways
+               regeneration_score = pi3k_factor * retinoic_acid * torch.rand(1).item()
+               if regeneration_score > 0.9:
+                   regenerated.append(node)
+           logger.info("Axolotl regeneration completed", extra={"regenerated": regenerated})
+           return regenerated
+        except Exception as e:
+           logger.error(f"Dedifferentiation error: {e}")
+           return []
+        
+    
