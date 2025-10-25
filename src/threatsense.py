@@ -151,3 +151,78 @@ if __name__ == "__main__":
         print(f"Threat detection: {result}")
 
     asyncio.run(main())
+    # threatsense.py - ThreatSense AI Predictive Engine for AegisNet v3.0
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+from typing import Dict, List
+import logging
+from sklearn.preprocessing import MinMaxScaler
+from imbalancedlearn.over_sampling import SMOTE
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+from cryptography.hazmat.backends import default_backend
+import asyncio
+import kfac  # Add kfac-pytorch to requirements.txt for ACKTR
+
+logger = logging.getLogger(__name__)
+
+class LSTMDetector(nn.Module):
+    """LSTM for threat detection with ACKTR/K-FAC tuning."""
+    def __init__(self, input_dim: int = 128, hidden_dim: int = 64, output_dim: int = 1):
+        super(LSTMDetector, self).__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        """LSTM forward pass for anomaly classification."""
+        try:
+            lstm_out, _ = self.lstm(x)
+            out = self.fc(lstm_out[:, -1, :])
+            return self.sigmoid(out)
+        except Exception as e:
+            logger.error(f"LSTM forward error: {e}")
+            return torch.zeros(x.shape[0], 1)
+
+    def train_with_acktr(self, data: torch.Tensor, labels: torch.Tensor, epochs: int = 10):
+        """Train with ACKTR/K-FAC optimizer."""
+        try:
+            optimizer = kfac.KFAC(self.parameters(), eps=1e-5, pi=0.001, update_freq=10)
+            criterion = nn.BCELoss()
+            for epoch in range(epochs):
+                optimizer.zero_grad()
+                outputs = self(data)
+                loss = criterion(outputs, labels)
+                loss.backward()
+                optimizer.step()
+            logger.info("ACKTR training completed", extra={"epochs": epochs})
+        except Exception as e:
+            logger.error(f"ACKTR training error: {e}")
+
+class WGAN:
+    # ... (existing WGAN code)
+
+class ThreatSenseAI:
+    """Integrated ThreatSense AI engine with HFL and DP."""
+    def __init__(self, input_dim: int = 128, hidden_dim: int = 64, dp_sigma: float = 0.04):
+        self.lstm = LSTMDetector(input_dim, hidden_dim)
+        self.wgan = WGAN(input_dim, hidden_dim)
+        self.scaler = MinMaxScaler()
+        self.smote = SMOTE()
+        self.dp_sigma = dp_sigma
+
+    # ... (existing methods)
+
+# Example usage
+if __name__ == "__main__":
+    async def main():
+        threatsense = ThreatSenseAI()
+        input_data = torch.rand(100, 128)  # Mock data
+        labels = torch.rand(100, 1)  # Mock labels
+        threatsense.lstm.train_with_acktr(input_data.unsqueeze(1), labels)
+        result = await threatsense.detect_threat(input_data)
+        print(f"Threat detection: {result}")
+
+    asyncio.run(main())
+    
