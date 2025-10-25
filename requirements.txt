@@ -20,3 +20,4 @@ structlog>=22.1.0
 kfac-pytorch>=0.1.0
 torch-geometric>=2.0.0
 pynng>=0.7.0
+bcc>=0.28.0
