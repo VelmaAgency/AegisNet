@@ -90,3 +90,21 @@ def update_metrics(self, new_metrics: Dict):
     """Update performance metrics (from NS-3 sims)."""
     self.metrics.update(new_metrics)
     logger.debug("Metrics updated", metrics=self.metrics)
+    # aegisnet_workflow.py - Add Layered Sharding
+from typing import List
+
+class AegisNetWorkflow:
+    # ... (existing logic)
+
+    def shard_layers(self, tasks: List, num_shards: int = 5) -> List[List]:
+        """Shard tasks across layers for scalability."""
+        try:
+           sharded = [[] for _ in range(num_shards)]
+           for i, task in enumerate(tasks):
+               sharded[i % num_shards].append(task)
+           logger.info("Tasks sharded", extra={"shards": num_shards})
+           return sharded
+        except Exception as e:
+           logger.error(f"Sharding error: {e}")
+           return [tasks]
+    
