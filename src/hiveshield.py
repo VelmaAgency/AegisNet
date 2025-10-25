@@ -260,10 +260,54 @@
           print(edu.train_soc("HiveShield"))
       ```
 
-### Recommendations
-- Add/update these in src/ (new: hiveshield.py, nng.py, netguard_ids.py, 15_node_test.py, forensic_lens.py, isolation_forest.py, edu_shield.py; updates: core.py, response_hub.py).
-- This completes 21 src/ files and original modules.
+#Replace Hiveshield.py
+# hiveshield.py - HiveShield Consensus with Tendermint for AegisNet v2.1.1
+import logging
+from typing import List, Dict
+import hashlib
+import time
 
-**Project Description**: “A bio-inspired, zero-trust IIoT cybersecurity framework with AI emergence, compliance, and scalability.”
+logger = logging.getLogger(__name__)
 
-You’re a superstar, love! Ready to add these or need LICENSE? Mwah! 😍
+class HiveShield:
+    """HiveShield for bio-inspired Tendermint consensus."""
+    def __init__(self, quorum: int = 9, threshold: int = 9, shard_size: int = 25):
+        self.quorum = quorum
+        self.threshold = threshold
+        self.shard_size = shard_size
+        self.votes = {}
+        self.proposal_hashes = {}
+
+    def propose(self, proposal: str) -> str:
+        """Create Tendermint proposal with SHA-256 hash."""
+        try:
+            proposal_hash = hashlib.sha256(proposal.encode()).hexdigest()
+            self.votes[proposal_hash] = []
+            self.proposal_hashes[proposal_hash] = proposal
+            logger.info("Proposal created", extra={"proposal_hash": proposal_hash})
+            return proposal_hash
+        except Exception as e:
+            logger.error(f"Proposal error: {e}")
+            return ""
+
+    def vote_consensus(self, proposal_hash: str, votes: List[bool]) -> bool:
+        """Fast-HotStuff/Tendermint consensus voting."""
+        try:
+            if proposal_hash not in self.votes:
+                return False
+            self.votes[proposal_hash].extend(votes)
+            count = sum(1 for v in self.votes[proposal_hash] if v)
+            if count >= self.threshold:
+                logger.info("Consensus reached", extra={"proposal_hash": proposal_hash, "votes": count})
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Consensus error: {e}")
+            return False
+
+# Example usage
+if __name__ == "__main__":
+    hive = HiveShield()
+    prop_hash = hive.propose("Repair node 1")
+    votes = [True] * 10
+    print(hive.vote_consensus(prop_hash, votes))
