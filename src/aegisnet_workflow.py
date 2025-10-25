@@ -54,3 +54,39 @@ async def compress_logs(self):
     compressed = gzip.compress(logs.encode())
     logger.info("Logs compressed", extra={"size": len(compressed)})
     return compressed
+    async def add_task(self, task: Callable, *args, **kwargs) -> Dict:
+    """Add and execute async task with logging and metrics."""
+    try:
+        self.tasks.append(task)
+        start_time = asyncio.get_event_loop().time()
+        result = await task(*args, **kwargs)
+        self.metrics["latency"] = asyncio.get_event_loop().time() - start_time
+        logger.info("Task completed", task=task.__name__, latency=self.metrics["latency"], result=result)
+        return {"status": "success", "result": result, "metrics": self.metrics}
+    except Exception as e:
+        logger.error("Task error", task=task.__name__, error=str(e), exc_info=True)
+        return {"status": "error", "error": str(e)}
+
+async def run_workflow(self) -> Dict:
+    """Run all tasks, including bio-triad, AI detection, and mitigations."""
+    results = {}
+    # Bio-triad routing
+    results["routing"] = await self.add_task(self.ant_mesh.pheromone_routing, nodes=[0, self.nodes-1], data={"threat": "deepfake"})
+    # AI anomaly detection
+    input_data = torch.rand(1, 128)  # Mock telemetry
+    results["detection"] = await self.add_task(self.nova.detect_anomaly, input_data)
+    # Malware mitigation
+    if results["detection"]["status"] == "anomaly":
+        results["mitigation"] = await self.add_task(self.malware_mitigator.mitigate, "stealit_pattern in data")
+    return results
+
+async def compress_logs(self, logs: str) -> bytes:
+    """Compress logs with gzip, maintaining auditability."""
+    compressed = gzip.compress(logs.encode())
+    logger.info("Logs compressed", size=len(compressed))
+    return compressed
+
+def update_metrics(self, new_metrics: Dict):
+    """Update performance metrics (from NS-3 sims)."""
+    self.metrics.update(new_metrics)
+    logger.debug("Metrics updated", metrics=self.metrics)
