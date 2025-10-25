@@ -681,3 +681,144 @@ if __name__ == "__main__":
         print(f"Threat detection: {result}")
 
     asyncio.run(main())
+    # threatsense.py - ThreatSense AI Predictive Engine for AegisNet v3.0
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+from typing import Dict, List
+import logging
+from sklearn.preprocessing import MinMaxScaler
+from imbalancedlearn.over_sampling import SMOTE
+from cryptography.hazmat.primitives.kdf.scrypt import Scrypt
+from cryptography.hazmat.backends import default_backend
+import asyncio
+from torch.utils.data import DataLoader, TensorDataset
+import kfac  # Add kfac-pytorch to requirements.txt for ACKTR
+
+logger = logging.getLogger(__name__)
+
+class LSTMDetector(nn.Module):
+    """LSTM for threat detection with ACKTR/K-FAC tuning."""
+    def __init__(self, input_dim: int = 128, hidden_dim: int = 64, output_dim: int = 1):
+        super(LSTMDetector, self).__init__()
+        self.lstm = nn.LSTM(input_dim, hidden_dim, batch_first=True)
+        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.sigmoid = nn.Sigmoid()
+
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        try:
+            lstm_out, _ = self.lstm(x)
+            out = self.fc(lstm_out[:, -1, :])
+            return self.sigmoid(out)
+        except Exception as e:
+            logger.error(f"LSTM forward error: {e}")
+            return torch.zeros(x.shape[0], 1)
+
+    def train_with_acktr(self, data: torch.Tensor, labels: torch.Tensor, epochs: int = 10, batch_size: int = 64):
+        try:
+            optimizer = kfac.KFAC(self.parameters(), eps=1e-5, pi=0.001, update_freq=10)
+            criterion = nn.BCELoss()
+            dataset = TensorDataset(data.unsqueeze(1), labels)
+            dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
+            for epoch in range(epochs):
+                for batch_data, batch_labels in dataloader:
+                    optimizer.zero_grad()
+                    outputs = self(batch_data)
+                    loss = criterion(outputs, batch_labels)
+                    loss.backward()
+                    optimizer.step()
+            logger.info("ACKTR training completed", extra={"epochs": epochs})
+        except Exception as e:
+            logger.error(f"ACKTR training error: {e}")
+
+class WGAN(nn.Module):
+    """WGAN-GP with PPO integration for synthetic threat generation."""
+    def __init__(self, input_dim: int = 128, hidden_dim: int = 64, gp_lambda: float = 10.0, clip_ratio: float = 0.2):
+        super(WGAN, self).__init__()
+        self.generator = nn.Sequential(
+            nn.Linear(100, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, input_dim)
+        )
+        self.critic = nn.Sequential(
+            nn.Linear(input_dim, hidden_dim),
+            nn.ReLU(),
+            nn.Linear(hidden_dim, 1)
+        )
+        self.optimizer_g = optim.Adam(self.generator.parameters(), lr=0.0002)
+        self.optimizer_c = optim.Adam(self.critic.parameters(), lr=0.0002)
+        self.gp_lambda = gp_lambda
+        self.clip_ratio = clip_ratio
+
+    def gradient_penalty(self, real: torch.Tensor, fake: torch.Tensor) -> torch.Tensor:
+        alpha = torch.rand(real.size(0), 1).expand_as(real)
+        interpolated = alpha * real + (1 - alpha) * fake
+        interpolated.requires_grad_()
+        critic_out = self.critic(interpolated)
+        gradients = torch.autograd.grad(outputs=critic_out, inputs=interpolated, grad_outputs=torch.ones_like(critic_out), create_graph=True, retain_graph=True)[0]
+        gp = self.gp_lambda * ((gradients.norm(2, dim=1) - 1) ** 2).mean()
+        return gp
+
+    def train_step(self, real_data: torch.Tensor) -> Dict:
+        try:
+            # Critic update
+            for _ in range(5):
+                self.optimizer_c.zero_grad()
+                fake_noise = torch.randn(real_data.size(0), 100)
+                fake_data = self.generator(fake_noise)
+                critic_real = self.critic(real_data).mean()
+                critic_fake = self.critic(fake_data.detach()).mean()
+                gp = self.gradient_penalty(real_data, fake_data)
+                critic_loss = -critic_real + critic_fake + gp
+                critic_loss.backward()
+                self.optimizer_c.step()
+
+            # Generator update with PPO
+            self.optimizer_g.zero_grad()
+            fake_noise = torch.randn(real_data.size(0), 100)
+            fake_data = self.generator(fake_noise)
+            old_probs = self.critic(fake_data).detach()
+            generator_loss = -self.critic(fake_data).mean()
+            generator_loss.backward()
+            self.optimizer_g.step()
+
+            # PPO clip
+            new_probs = self.critic(fake_data)
+            ratio = new_probs / old_probs
+            clipped_ratio = torch.clamp(ratio, 1 - self.clip_ratio, 1 + self.clip_ratio)
+            rewards = -generator_loss.detach()
+            ppo_loss = -torch.min(ratio * rewards, clipped_ratio * rewards).mean()
+            ppo_loss.backward()
+            self.optimizer_g.step()
+
+            return {"critic_loss": critic_loss.item(), "generator_loss": generator_loss.item(), "ppo_loss": ppo_loss.item()}
+        except Exception as e:
+            logger.error(f"WGAN training error: {e}")
+            return {"critic_loss": 0.0, "generator_loss": 0.0, "ppo_loss": 0.0}
+
+class ThreatSenseAI:
+    """Integrated ThreatSense AI engine with HFL and DP."""
+    def __init__(self, input_dim: int = 128, hidden_dim: int = 64, dp_sigma: float = 0.04):
+        self.lstm = LSTMDetector(input_dim, hidden_dim)
+        self.wgan = WGAN(input_dim, hidden_dim)
+        self.scaler = MinMaxScaler()
+        self.smote = SMOTE()
+        self.dp_sigma = dp_sigma
+
+    # ... (existing methods)
+
+# Example usage
+if __name__ == "__main__":
+    async def main():
+        threatsense = ThreatSenseAI()
+        input_data = torch.rand(100, 128)  # Mock data
+        labels = torch.rand(100, 1)  # Mock labels
+        threatsense.lstm.train_with_acktr(input_data, labels)
+        real_data = torch.rand(100, 128)  # Mock real data
+        wgan_result = threatsense.wgan.train_step(real_data)
+        print(f"WGAN training: {wgan_result}")
+        result = await threatsense.detect_threat(input_data)
+        print(f"Threat detection: {result}")
+
+    asyncio.run(main())
