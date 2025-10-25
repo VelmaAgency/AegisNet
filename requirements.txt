@@ -13,3 +13,5 @@ tpm2-tools>=5.0
 lxml>=4.9.0
 elasticsearch>=8.11.3
 novaclient>=17.0.0
+flask>=2.2.0, 
+prometheus_client>=0.17.0
