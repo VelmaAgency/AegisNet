@@ -23,3 +23,33 @@ class BioTriad:
         except Exception as e:
             logger.error("Planarian healing error", extra={"error": str(e)})
             return False
+# core.py - Add Neoblast Hardening
+import torch
+import logging
+logger = logging.getLogger(__name__)
+
+class BioTriad:
+    # ... (existing PlanarianHealing logic)
+
+    def neoblast_hardening(self, input_data: torch.Tensor, threats: List[str] = ["deepfake", "prompt_injection"]) -> torch.Tensor:
+        """Adversarial training for Neoblast hardening."""
+        try:
+            # Simulate adversarial noise
+            noise = torch.randn_like(input_data) * 0.05  # 5% perturbation
+            hardened = input_data + noise
+            for threat in threats:
+                if threat == "deepfake":
+                    hardened = hardened.clamp(0, 1)  # Normalize
+                elif threat == "prompt_injection":
+                    hardened = hardened + torch.rand_like(hardened) * 0.02  # Injection sim
+            return hardened
+        except Exception as e:
+            logger.error(f"Neoblast error: {e}")
+            return input_data
+
+# Example
+if __name__ == "__main__":
+    triad = BioTriad()
+    data = torch.rand(128)
+    hardened = triad.neoblast_hardening(data)
+    print(f"Hardened data: {hardened.mean().item()}")
