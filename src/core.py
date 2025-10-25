@@ -958,5 +958,118 @@ class BioTriad:
         except Exception as e:
            logger.error(f"Dedifferentiation error: {e}")
            return []
-        
+        # core.py - Bio-Triad, Multi-DB Hardening, and Threat Monitoring with BioTriadGuard Port for v2.1.1
+import torch
+import yara
+import logging
+from typing import List, Dict, Tuple
+import numpy as np
+
+logger = logging.getLogger(__name__)
+
+class BioTag:
+    """Base class for custom tags."""
+    def __init__(self, value: float = 0.0, source: int = 0, checksum: int = 0):
+        self.value = value
+        self.source = source
+        self.checksum = checksum
+
+class PheromoneTag(BioTag):
+    """Pheromone tag for routing."""
+    def __init__(self, level: float = 1.0, source: int = 0, checksum: int = 0):
+        super().__init__(level, source, checksum)
+
+class ConsensusTag(BioTag):
+    """Consensus tag for voting."""
+    def __init__(self, vote: float = 0.0, source: int = 0, checksum: int = 0):
+        super().__init__(vote, source, checksum)
+
+class RepairRequestTag(BioTag):
+    """Repair request tag."""
+    def __init__(self, damaged_node: int = 0, source: int = 0, checksum: int = 0):
+        super().__init__(damaged_node, source, checksum)
+
+class RepairSignalTag(BioTag):
+    """Repair signal tag."""
+    def __init__(self, damaged_node: int = 0, source: int = 0, checksum: int = 0):
+        super().__init__(damaged_node, source, checksum)
+
+class RepairSuccessTag(BioTag):
+    """Repair success tag."""
+    def __init__(self, repaired_node: int = 0, source: int = 0, checksum: int = 0):
+        super().__init__(repaired_node, source, checksum)
+
+class DamageTag(BioTag):
+    """Damage tag."""
+    def __init__(self, damaged_node: int = 0, source: int = 0, checksum: int = 0):
+        super().__init__(damaged_node, source, checksum)
+
+class BioTriad:
+    """Bio-inspired recovery and hardening with tags."""
+    def __init__(self):
+        self.recovery_rate = 0.1
+        self.repair_votes = 0
+        self.repair_signals = {}
+        self.damaged = False
+        self.node_id = 0  # Placeholder node ID
+
+    def planarian_healing(self, input_data: torch.Tensor, anomaly_score: float, recovery_time: float = 1.0) -> bool:
+        """Simulate PlanarianHealing for node recovery."""
+        try:
+            if anomaly_score > 0.93 and recovery_time < 1.15:
+                logger.info("Node recovery initiated", extra={"score": anomaly_score})
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Recovery error: {e}")
+            return False
+
+    def neoblast_hardening(self, input_data: torch.Tensor, threats: List[str] = ["deepfake", "prompt_injection"]) -> torch.Tensor:
+        """Adversarial training for Neoblast hardening."""
+        try:
+            noise = torch.randn_like(input_data) * 0.05
+            hardened = input_data + noise
+            for threat in threats:
+                if threat == "deepfake":
+                    hardened = hardened.clamp(0, 1)
+                elif threat == "prompt_injection":
+                    hardened = hardened + torch.rand_like(hardened) * 0.02
+            logger.info("Neoblast hardening applied", extra={"threats": threats})
+            return hardened
+        except Exception as e:
+            logger.error(f"Neoblast error: {e}")
+            return input_data
+
+    def process_tag(self, tag: BioTag) -> None:
+        """Process incoming tags with PATE validation."""
+        try:
+            # PATE validation (simulated differential privacy check)
+            if np.random.rand() > 0.992:  # 99.2% success rate
+                logger.error("PATE validation failed for tag")
+                return
+            
+            if isinstance(tag, PheromoneTag):
+                tag.value *= 0.9  # Evaporation
+                if tag.value < 0.1:
+                    tag.value = 1.0  # Reinforcement if good path
+                logger.info("Pheromone tag processed", extra={"level": tag.value})
+            elif isinstance(tag, ConsensusTag):
+                self.repair_votes += 1 if tag.value > 0.5 else 0  # Vote count
+                logger.info("Consensus tag processed", extra={"votes": self.repair_votes})
+            elif isinstance(tag, RepairRequestTag):
+                self.repair_signals[tag.value] = True
+                logger.info("Repair request received", extra={"damaged_node": tag.value})
+            elif isinstance(tag, RepairSignalTag):
+                self.repair_signals[tag.value] = True
+                logger.info("Repair signal received", extra={"damaged_node": tag.value})
+            elif isinstance(tag, RepairSuccessTag):
+                self.damaged = False
+                logger.info("Repair success received", extra={"repaired_node": tag.value})
+            elif isinstance(tag, DamageTag):
+                self.damaged = True
+                logger.info("Damage tag received", extra={"damaged_node": tag.value})
+            else:
+                logger.warning("Unknown tag")
+        except Exception as e:
+            logger.error(f"Tag processing error: {e}")
     
